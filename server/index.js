@@ -1,14 +1,22 @@
-import express from "express";
+import app from "./app.js";
+import MongoDB from "./db/mongodb.js";
 import dotenv from "dotenv";
-import router from "./controller/actions.js";
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
-const app = express();
+const run = async () => {
+  try {
+    const port = process.env.PORT || 3000;
+    await MongoDB.instance().connect();
+    app.listen(port, () => console.log(`Listening on port: ${port}`));
+  } catch (err) {
+    console.log("Failed to start: ", err);
+  }
+};
 
-app.use("/", router);
+run();
 
-app.listen(port, () => {
-  console.log("Server is running on http://localhost:3000");
+process.on("SIGINT", async () => {
+  await MongoDB.instance().disconnect();
+  process.exit(0);
 });
