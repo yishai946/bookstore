@@ -23,7 +23,7 @@ class MongoDB {
         throw error;
       }
     }
-    return this.client.db("expense-tracker");
+    return this.client.db("bookstore");
   }
 
   async disconnect() {

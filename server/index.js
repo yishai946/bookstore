@@ -1,5 +1,5 @@
 import app from "./app.js";
-import MongoDB from "./db/mongodb.js";
+import MongoDB from "./db/MongoDB.js";
 import dotenv from "dotenv";
 
 dotenv.config();

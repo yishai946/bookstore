@@ -1,5 +1,4 @@
-import { objectId } from "mongodb";
-import MongoDB from "./mongodb.js";
+import MongoDB from "./MongoDB.js";
 
 class BooksCollection {
   constructor() {
@@ -13,9 +12,19 @@ class BooksCollection {
     return this._instance;
   }
 
-  static async create(book) {
+  static async add(book) {
     const result = await this.instance().booksCollection.insertOne(book);
     return result.insertedId;
+  }
+
+  static async getAll(){
+    const books = await this.instance().booksCollection.find().toArray();
+    return books;
+  }
+
+  static async get(id){
+    const book = await this.instance().booksCollection.findOne({}, {_id: id})
+    return book;
   }
 }
 
