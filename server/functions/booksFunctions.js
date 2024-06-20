@@ -15,7 +15,8 @@ const booksFunctions = {
         book.author == "" ||
         book.genres.length == 0 ||
         book.pages < 1 || 
-        book.price <= 0
+        book.price <= 0 || 
+        book.stock < 0
       ) {
         throw new Error("Invalid book data");
       }
@@ -46,6 +47,17 @@ const booksFunctions = {
         }
     },
 
+    // get books by ids
+    getBooks: async (req, res) => {
+        try {
+            const ids = req.body;
+            const books = await BooksCollection.getBooks(ids);
+            res.status(200).json(books);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
     // get book by id
     get: async (req, res) => {
         try {
@@ -55,7 +67,30 @@ const booksFunctions = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    }
+    },
+
+    // delete book by id
+    delete: async (req, res) => {
+        try {
+            const id = req.params.id;
+            await BooksCollection.delete(id);
+            res.status(200).json({ deleted: id });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    // update book by id
+    update: async (req, res) => {
+        try {
+            const id = req.params.id;
+            const book = req.body;
+            await BooksCollection.update(id, book);
+            res.status(200).json({ updated: id });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
 };
 
 export default booksFunctions;
