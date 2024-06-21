@@ -1,4 +1,5 @@
 import BooksCollection from "../db/BooksCollection.js";
+import AuthorsCollection from "../db/AuthorsCollection.js";
 
 const booksFunctions = {
   // Add book to database
@@ -16,9 +17,15 @@ const booksFunctions = {
         book.genres.length == 0 ||
         book.pages < 1 || 
         book.price <= 0 || 
-        book.stock < 0
+        book.stock < 0 
       ) {
         throw new Error("Invalid book data");
+      }
+
+      // check if author exists
+      const author = await AuthorsCollection.get(book.author);
+      if (!author) {
+        throw new Error("Author not found");
       }
 
     //   Check if genres are empty
