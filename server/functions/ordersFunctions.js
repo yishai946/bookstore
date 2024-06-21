@@ -3,28 +3,6 @@ import OrdersCollection from "../db/OrdersCollection.js";
 import BooksCollection from "../db/BooksCollection.js";
 
 const ordersFunctions = {
-  // Add order to database
-  add: async (req, res) => {
-    try {
-      const order = req.body;
-
-      // Calculate total price
-      order.total = await calculatePrice(order.books);
-
-      // Check if order data is valid
-      await checkOrderData(order);
-
-      // Update stock for each book
-      await updateStock(order.books, -1);
-
-      // Add order to database
-      const id = await OrdersCollection.add(order);
-      res.status(200).json({ id });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
   // Get all orders from database
   getAll: async (req, res) => {
     try {
@@ -46,6 +24,28 @@ const ordersFunctions = {
     }
   },
 
+  // Add order to database
+  add: async (req, res) => {
+    try {
+      const order = req.body;
+
+      // Check if order data is valid
+      await checkOrderData(order);
+
+      // Update stock for each book
+      await reduceStock(order.books);
+
+      // Calculate total price
+      order.total = await calculatePrice(order.books);
+
+      // Add order to database
+      const id = await OrdersCollection.add(order);
+      res.status(200).json({ id });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   // Delete order by id
   delete: async (req, res) => {
     try {
@@ -54,7 +54,7 @@ const ordersFunctions = {
       if (!order) throw new Error("Order not found");
 
       // Update stock for each book (revert stock changes)
-      await updateStock(order.books, 1);
+      await revertStock(order.books);
 
       // Delete order from database
       await OrdersCollection.delete(id);
@@ -63,55 +63,62 @@ const ordersFunctions = {
       res.status(500).json({ error: error.message });
     }
   },
-
-  // Update order by id
-  update: async (req, res) => {
-    try {
-      const id = req.params.id;
-      const newOrder = req.body;
-
-      // Get the existing order
-      const oldOrder = await OrdersCollection.get(id);
-      if (!oldOrder) throw new Error("Order not found");
-
-      // Revert stock changes of the old order
-      await updateStock(oldOrder.books, 1);
-
-      // Calculate total price for the new order
-      newOrder.total = await calculatePrice(newOrder.books);
-
-      // Check if the new order data is valid considering reverted stock
-      await checkOrderData(newOrder);
-
-      // Apply stock changes of the new order
-      await updateStock(newOrder.books, -1);
-
-      // Update the order in the database
-      await OrdersCollection.update(id, newOrder);
-      res.status(200).json({ updated: id });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
 };
 
 // Update stock for books in an order
-const updateStock = async (books, multiplier) => {
-  for (const orderBook of books) {
-    const book = await BooksCollection.get(orderBook.id);
-    if (!book) throw new Error(`Book with ID ${orderBook.id} not found`);
+const reduceStock = async (books) => {
+    const updatedBooks = []; // Array to hold books with updated stock
 
-    const newStock = book.stock + orderBook.quantity * multiplier;
-    if (newStock < 0)
-      throw new Error(`Not enough stock for book ${book.title}`);
+    try {
+        // Retrieve current stock for all books in the order
+        const booksData = await BooksCollection.getBooks(books.map((book) => book.id));
 
-    await BooksCollection.update(book._id, { stock: newStock });
-  }
+        // Check and update stock for each book
+        for (const book of booksData) {
+            const orderBook = books.find((orderBook) => orderBook.id === book._id.toString());
+            if (!orderBook) throw new Error(`Book with ID ${book._id} not found`);
+
+            const newStock = book.stock - orderBook.quantity;
+
+            if (newStock < 0) {
+                throw new Error(`Not enough stock for book with ID ${book._id}`);
+            }
+
+            // Update the stock in the book object
+            book.stock = newStock;
+
+            // Store the updated book in the array (but don't update in DB yet)
+            updatedBooks.push(book);
+        }
+
+        // After all checks and updates, update books in the database
+        for (const book of updatedBooks) {
+            await BooksCollection.update(book._id, { stock: book.stock });
+        }
+    } catch (error) {
+        // Handle errors here, or propagate them back to the caller
+        throw error;
+    }
+};
+
+// Revert stock for books
+const revertStock = async (books) => {
+    try {
+        for (const book of books) {
+            const existingBook = await BooksCollection.get(book.id);
+            if (existingBook) {
+                existingBook.stock += book.quantity;
+                await BooksCollection.update(existingBook._id, { stock: existingBook.stock });
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Check if order data is valid
 const checkOrderData = async (order) => {
-  if (order.total <= 0 || order.books.length === 0 || !order.date) {
+  if (order.books.length === 0 || !order.date) {
     throw new Error("Invalid order data");
   }
 
@@ -122,25 +129,6 @@ const checkOrderData = async (order) => {
   if (booksIds.includes("")) {
     throw new Error("Book id cannot be empty");
   }
-
-  // Convert ids to ObjectId
-  booksIds.forEach((id, index) => {
-    booksIds[index] = new ObjectId(id);
-  });
-
-  // Try to get all books
-  const books = await BooksCollection.getBooks(booksIds);
-  if (books.length !== booksIds.length) {
-    throw new Error("One or more books do not exist");
-  }
-
-  // Check if all books are in stock considering the existing order's impact
-  books.forEach((book) => {
-    const orderBook = order.books.find((b) => b.id === book._id.toString());
-    if (orderBook.quantity > book.stock) {
-      throw new Error(`Not enough stock for book ${book.title}`);
-    }
-  });
 };
 
 // Calculate total price for an order

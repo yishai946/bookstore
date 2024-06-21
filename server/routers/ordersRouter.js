@@ -15,7 +15,4 @@ router.get("/get/:id", ordersFunctions.get);
 // delete order by id
 router.delete("/delete/:id", ordersFunctions.delete);
 
-// update order by id
-router.put("/update/:id", ordersFunctions.update);
-
 export default router;

@@ -34,6 +34,8 @@ class BooksCollection {
 
   // get books by ids
   static async getBooks(ids){
+    // make the ids to object ids
+    ids = ids.map(id => new ObjectId(id));
     const books = await this.instance().booksCollection.find({_id: {$in: ids}}).toArray();
     return books;
   }

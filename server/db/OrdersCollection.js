@@ -38,14 +38,6 @@ class OrdersCollection {
   static async delete(id) {
     await this.instance().ordersCollection.deleteOne({ _id: new ObjectId(id) });
   }
-
-  // update order by id
-  static async update(id, order) {
-    await this.instance().ordersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: order }
-    );
-  }
 }
 
 export default OrdersCollection;
