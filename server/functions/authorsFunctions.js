@@ -21,8 +21,15 @@ const authorsFunctions = {
   // Get all authors from database
   getAll: async (req, res) => {
     try {
-      const authors = await AuthorsCollection.getAll();
-      res.status(200).json(authors);
+      // Extract page and limit from query parameters
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+
+      // Get paginated results
+      const result = await AuthorsCollection.getAll(page, limit);
+
+      // Respond with the paginated data
+      res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

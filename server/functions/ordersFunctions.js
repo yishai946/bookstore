@@ -6,8 +6,15 @@ const ordersFunctions = {
   // Get all orders from database
   getAll: async (req, res) => {
     try {
-      const orders = await OrdersCollection.getAll();
-      res.status(200).json(orders);
+      // Extract page and limit from query parameters
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+
+      // Get paginated results
+      const result = await OrdersCollection.getAll(page, limit);
+
+      // Respond with the paginated data
+      res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -19,6 +26,30 @@ const ordersFunctions = {
       const id = req.params.id;
       const order = await OrdersCollection.get(id);
       res.status(200).json(order);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Get orders between dates
+  getBetweenDates: async (req, res) => {
+    try {
+      const { from, to, page = 1, limit = 10 } = req.query;
+
+      // Convert page and limit to integers
+      const pageNum = parseInt(page, 10) || 1;
+      const limitNum = parseInt(limit, 10) || 10;
+
+      // Get paginated results
+      const result = await OrdersCollection.getBetweenDates(
+        from,
+        to,
+        pageNum,
+        limitNum
+      );
+
+      // Respond with the paginated data
+      res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

@@ -21,11 +21,32 @@ class AuthorsCollection {
   }
 
   // Get all authors from database
-  static async getAll() {
-    const authors = await this.instance().authorsCollection.find().toArray();
-    return authors;
-  }
+  static async getAll(page = 1, limit = 10) {
+    const authorsCollection = this.instance().authorsCollection;
 
+    // Calculate the number of documents to skip based on the current page and limit
+    const skip = (page - 1) * limit;
+
+    // Retrieve the total count of documents
+    const total = await authorsCollection.countDocuments();
+
+    // Retrieve the paginated results
+    const orders = await authorsCollection
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // Return results along with pagination metadata
+    return {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: orders,
+    };
+  }
+  
   // get author by id
   static async get(id) {
     const author = await this.instance().authorsCollection.findOne({
@@ -46,7 +67,9 @@ class AuthorsCollection {
 
   // delete author by id
   static async delete(id) {
-    await this.instance().authorsCollection.deleteOne({ _id: new ObjectId(id) });
+    await this.instance().authorsCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
   }
 
   // update author by id

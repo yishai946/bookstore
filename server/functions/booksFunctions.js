@@ -45,12 +45,18 @@ const booksFunctions = {
 
     // Get all books from database
     getAll: async (req, res) => {
-        try{
-            const books = await BooksCollection.getAll();
-            res.status(200).json(books);
-        }
-        catch (error) {
-            res.status(500).json({ error: error.message });
+        try {
+          // Extract page and limit from query parameters
+          const page = parseInt(req.query.page, 10) || 1;
+          const limit = parseInt(req.query.limit, 10) || 10;
+
+          // Get paginated results
+          const result = await BooksCollection.getAll(page, limit);
+
+          // Respond with the paginated data
+          res.status(200).json(result);
+        } catch (error) {
+          res.status(500).json({ error: error.message });
         }
     },
 
@@ -62,6 +68,23 @@ const booksFunctions = {
             res.status(200).json(books);
         } catch (error) {
             res.status(500).json({ error: error.message });
+        }
+    },
+
+    // get books by genre
+    getByGenre: async (req, res) => {
+        try {
+          const genre = req.params.genre;
+          const page = parseInt(req.query.page, 10) || 1;
+          const limit = parseInt(req.query.limit, 10) || 10;
+
+          // Get paginated results
+          const result = await BooksCollection.getByGenre(genre, page, limit);
+
+          // Respond with the paginated data
+          res.status(200).json(result);
+        } catch (error) {
+          res.status(500).json({ error: error.message });
         }
     },
 
