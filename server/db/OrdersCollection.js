@@ -48,7 +48,7 @@ class OrdersCollection {
     return order;
   }
 
-  // Get orders between dates with pagination
+  // get orders between dates with pagination
   static async getBetweenDates(from, to, page = 1, limit = 10) {
     const ordersCollection = this.instance().ordersCollection;
 
@@ -83,6 +83,195 @@ class OrdersCollection {
       totalPages: Math.ceil(total / limit),
       data: orders,
     };
+  }
+
+  // get all-time highest profit day
+  static async getHighestProfitDay() {
+    const result = await this.instance()
+      .ordersCollection.aggregate([
+        {
+          $group: {
+            _id: "$date",
+            totalSales: {
+              $sum: "$total",
+            },
+          },
+        },
+        {
+          $sort: {
+            totalSales: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    return result[0] || null; // Return the highest profit day or null if no results
+  }
+
+  // get total profit between dates
+  static async getTotalProfitBetweenDates(from, to) {
+    const result = await this.instance()
+      .ordersCollection.aggregate([
+        {
+          $match: {
+            date: {
+              $gte: from,
+              $lte: to,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalProfit: {
+              $sum: "$total",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalProfit: 1,
+          },
+        },
+      ])
+      .toArray();
+
+    return result[0]?.totalProfit || 0; // Return the total profit or 0 if no results
+  }
+
+  // get most popular book
+  static async getMostPopularBook() {
+    const result = await this.instance()
+      .ordersCollection.aggregate([
+        {
+          $unwind: "$books",
+        },
+        {
+          $group: {
+            _id: "$books.id",
+            totalQuantity: {
+              $sum: "$books.quantity",
+            },
+          },
+        },
+        {
+          $sort: {
+            totalQuantity: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    // If there's a result, return the book ID and total quantity, otherwise return null
+    return result.length > 0
+      ? { bookId: result[0]._id, totalQuantity: result[0].totalQuantity }
+      : null;
+  }
+
+  // get most popular author
+  static async getMostPopularAuthor() {
+    const result = await this.instance()
+      .ordersCollection.aggregate([
+        {
+          $unwind: "$books",
+        },
+        {
+          $addFields: {
+            "books.id": { $toObjectId: "$books.id" },
+          },
+        },
+        {
+          $lookup: {
+            from: "books",
+            localField: "books.id",
+            foreignField: "_id",
+            as: "bookDetails",
+          },
+        },
+        {
+          $unwind: "$bookDetails",
+        },
+        {
+          $group: {
+            _id: "$bookDetails.author",
+            totalQuantity: { $sum: "$books.quantity" },
+          },
+        },
+        {
+          $sort: {
+            totalQuantity: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    return result.length > 0
+      ? { author: result[0]._id, totalQuantity: result[0].totalQuantity }
+      : null;
+  }
+
+  // gte most popular genres between dates
+  static async getMostPopularGenres(from, to) {
+    const result = await this.instance()
+      .ordersCollection.aggregate([
+        {
+          $match: {
+            date: {
+              $gte: from,
+              $lte: to,
+            },
+          },
+        },
+        {
+          $unwind: "$books",
+        },
+        {
+          $addFields: {
+            "books.id": { $toObjectId: "$books.id" },
+          },
+        },
+        {
+          $lookup: {
+            from: "books",
+            localField: "books.id",
+            foreignField: "_id",
+            as: "bookDetails",
+          },
+        },
+        {
+          $unwind: "$bookDetails",
+        },
+        {
+          $unwind: "$bookDetails.genres",
+        },
+        {
+          $group: {
+            _id: "$bookDetails.genres",
+            totalQuantity: { $sum: "$books.quantity" },
+          },
+        },
+        {
+          $sort: {
+            totalQuantity: -1,
+          },
+        },
+        {
+          $limit: 3,
+        },
+      ])
+      .toArray();
+
+    return result;
   }
 
   // Add order to database

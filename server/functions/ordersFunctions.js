@@ -55,6 +55,64 @@ const ordersFunctions = {
     }
   },
 
+  // get all-time highest profit day
+  getHighestProfitDay: async (req, res) => {
+    try {
+      const result = await OrdersCollection.getHighestProfitDay();
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // get total profit between dates
+  getTotalProfitBetweenDates: async (req, res) => {
+    try {
+      const { from, to } = req.query;
+
+      const totalProfit = await OrdersCollection.getTotalProfitBetweenDates(
+        from,
+        to
+      );
+
+      res.status(200).json({ totalProfit });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // get most popular book
+  getMostPopularBook: async (req, res) => {
+    try {
+      const result = await OrdersCollection.getMostPopularBook();
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // get most popular author
+  getMostPopularAuthor: async (req, res) => {
+    try {
+      const result = await OrdersCollection.getMostPopularAuthor();
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // get most popular genres
+  getMostPopularGenres: async (req, res) => {
+    try {
+      const from = req.query.from || new Date(0);
+      const to = req.query.to || new Date();
+      const result = await OrdersCollection.getMostPopularGenres(from, to);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   // Add order to database
   add: async (req, res) => {
     try {
@@ -98,53 +156,59 @@ const ordersFunctions = {
 
 // Update stock for books in an order
 const reduceStock = async (books) => {
-    const updatedBooks = []; // Array to hold books with updated stock
+  const updatedBooks = []; // Array to hold books with updated stock
 
-    try {
-        // Retrieve current stock for all books in the order
-        const booksData = await BooksCollection.getBooks(books.map((book) => book.id));
+  try {
+    // Retrieve current stock for all books in the order
+    const booksData = await BooksCollection.getBooks(
+      books.map((book) => book.id)
+    );
 
-        // Check and update stock for each book
-        for (const book of booksData) {
-            const orderBook = books.find((orderBook) => orderBook.id === book._id.toString());
-            if (!orderBook) throw new Error(`Book with ID ${book._id} not found`);
+    // Check and update stock for each book
+    for (const book of booksData) {
+      const orderBook = books.find(
+        (orderBook) => orderBook.id === book._id.toString()
+      );
+      if (!orderBook) throw new Error(`Book with ID ${book._id} not found`);
 
-            const newStock = book.stock - orderBook.quantity;
+      const newStock = book.stock - orderBook.quantity;
 
-            if (newStock < 0) {
-                throw new Error(`Not enough stock for book with ID ${book._id}`);
-            }
+      if (newStock < 0) {
+        throw new Error(`Not enough stock for book with ID ${book._id}`);
+      }
 
-            // Update the stock in the book object
-            book.stock = newStock;
+      // Update the stock in the book object
+      book.stock = newStock;
 
-            // Store the updated book in the array (but don't update in DB yet)
-            updatedBooks.push(book);
-        }
-
-        // After all checks and updates, update books in the database
-        for (const book of updatedBooks) {
-            await BooksCollection.update(book._id, { stock: book.stock });
-        }
-    } catch (error) {
-        // Handle errors here, or propagate them back to the caller
-        throw error;
+      // Store the updated book in the array (but don't update in DB yet)
+      updatedBooks.push(book);
     }
+
+    // After all checks and updates, update books in the database
+    for (const book of updatedBooks) {
+      await BooksCollection.update(book._id, { stock: book.stock });
+    }
+  } catch (error) {
+    // Handle errors here, or propagate them back to the caller
+    throw error;
+  }
 };
 
 // Revert stock for books
 const revertStock = async (books) => {
-    try {
-        for (const book of books) {
-            const existingBook = await BooksCollection.get(book.id);
-            if (existingBook) {
-                existingBook.stock += book.quantity;
-                await BooksCollection.update(existingBook._id, { stock: existingBook.stock });
-            }
-        }
-    } catch (error) {
-        throw error;
+  try {
+    for (const book of books) {
+      const existingBook = await BooksCollection.get(book.id);
+      if (existingBook) {
+        existingBook.stock += book.quantity;
+        await BooksCollection.update(existingBook._id, {
+          stock: existingBook.stock,
+        });
+      }
     }
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Check if order data is valid
