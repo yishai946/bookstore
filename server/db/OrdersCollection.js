@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb";
 import MongoDB from "./MongoDB.js";
 
 class OrdersCollection {
@@ -40,7 +39,6 @@ class OrdersCollection {
     };
   }
 
-  // get order by id
   static async get(id) {
     const order = await this.instance().ordersCollection.findOne({
       _id: id,
@@ -48,7 +46,6 @@ class OrdersCollection {
     return order;
   }
 
-  // get orders between dates with pagination
   static async getBetweenDates(from, to, page = 1, limit = 10) {
     const ordersCollection = this.instance().ordersCollection;
 
@@ -85,7 +82,6 @@ class OrdersCollection {
     };
   }
 
-  // get all-time highest profit day
   static async getHighestProfitDay() {
     const result = await this.instance()
       .ordersCollection.aggregate([
@@ -108,10 +104,9 @@ class OrdersCollection {
       ])
       .toArray();
 
-    return result[0] || null; // Return the highest profit day or null if no results
+    return result[0] || null;
   }
 
-  // get total profit between dates
   static async getTotalProfitBetweenDates(from, to) {
     const result = await this.instance()
       .ordersCollection.aggregate([
@@ -140,10 +135,9 @@ class OrdersCollection {
       ])
       .toArray();
 
-    return result[0]?.totalProfit || 0; // Return the total profit or 0 if no results
+    return result[0]?.totalProfit || 0;
   }
 
-  // get most popular book
   static async getMostPopularBook() {
     const result = await this.instance()
       .ordersCollection.aggregate([
@@ -169,13 +163,11 @@ class OrdersCollection {
       ])
       .toArray();
 
-    // If there's a result, return the book ID and total quantity, otherwise return null
     return result.length > 0
       ? { bookId: result[0]._id, totalQuantity: result[0].totalQuantity }
       : null;
   }
 
-  // get most popular author
   static async getMostPopularAuthor() {
     const result = await this.instance()
       .ordersCollection.aggregate([
@@ -215,7 +207,6 @@ class OrdersCollection {
       : null;
   }
 
-  // gte most popular genres between dates
   static async getMostPopularGenres(from, to) {
     const result = await this.instance()
       .ordersCollection.aggregate([
@@ -264,13 +255,11 @@ class OrdersCollection {
     return result;
   }
 
-  // Add order to database
   static async add(order) {
     const result = await this.instance().ordersCollection.insertOne(order);
     return result.insertedId;
   }
 
-  // delete order by id
   static async delete(id) {
     await this.instance().ordersCollection.deleteOne({ _id: id });
   }

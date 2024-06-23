@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import OrdersCollection from "../db/OrdersCollection.js";
 import BooksCollection from "../db/BooksCollection.js";
+import AuthorsCollection from "../db/AuthorsCollection.js";
 
 const ordersFunctions = {
   // Get all orders from database
@@ -13,6 +14,9 @@ const ordersFunctions = {
       // Get paginated results
       const result = await OrdersCollection.getAll(page, limit);
 
+      // Fetch book details including authors for each order
+      await populateBookDetails(result.data);
+
       // Respond with the paginated data
       res.status(200).json(result);
     } catch (error) {
@@ -24,7 +28,13 @@ const ordersFunctions = {
   get: async (req, res) => {
     try {
       const id = new ObjectId(req.params.id);
-      const order = await OrdersCollection.get(id);
+      let order = await OrdersCollection.get(id);
+
+      if (order) {
+        // Fetch book details including authors for the order
+        await populateBookDetails([order]);
+      }
+
       res.status(200).json(order);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -48,6 +58,9 @@ const ordersFunctions = {
         limitNum
       );
 
+      // Fetch book details including authors for each order
+      await populateBookDetails(result.data);
+
       // Respond with the paginated data
       res.status(200).json(result);
     } catch (error) {
@@ -59,7 +72,7 @@ const ordersFunctions = {
   getHighestProfitDay: async (req, res) => {
     try {
       const result = await OrdersCollection.getHighestProfitDay();
-      res.status(200).json(result);
+      res.status(200).json({ day: result._id, profit: result.totalSales });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -85,7 +98,9 @@ const ordersFunctions = {
   getMostPopularBook: async (req, res) => {
     try {
       const result = await OrdersCollection.getMostPopularBook();
-      res.status(200).json(result);
+      const book = await BooksCollection.get(result.bookId);
+      console.log(result)
+      res.status(200).json({ book, quantity: result.totalQuantity });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -95,7 +110,8 @@ const ordersFunctions = {
   getMostPopularAuthor: async (req, res) => {
     try {
       const result = await OrdersCollection.getMostPopularAuthor();
-      res.status(200).json(result);
+      const author = await AuthorsCollection.get(result.author);
+      res.status(200).json({ author, quantity: result.totalQuantity });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -118,10 +134,14 @@ const ordersFunctions = {
     try {
       let order = req.body;
 
-      if(order.books.length === 0) throw new Error("Order must contain at least one book");
-      if(!order.date) throw new Error("Order must contain a date");
+      if (order.books.length === 0)
+        throw new Error("Order must contain at least one book");
+      if (!order.date) throw new Error("Order must contain a date");
 
-      order.books.map(book => new ObjectId(book.id));
+      // convert book ids to ObjectIds
+      order.books = order.books.map((book) => {
+        return { id: new ObjectId(book.id), quantity: book.quantity };
+      });
 
       // Update stock for each book
       await reduceStock(order.books);
@@ -156,6 +176,34 @@ const ordersFunctions = {
   },
 };
 
+// Function to populate book details including authors for orders
+const populateBookDetails = async (orders) => {
+  try {
+    // Extract unique book ids from all orders
+    const bookIds = orders.flatMap((order) =>
+      order.books.map((book) => book.id)
+    );
+    const uniqueBookIds = [...new Set(bookIds)];
+
+    // Fetch books including authors based on unique book ids
+    const books = await BooksCollection.getBooks(uniqueBookIds);
+
+    // Update each order with detailed book information
+    orders.forEach((order) => {
+      order.books.forEach((book) => {
+        const detailedBook = books.find(
+          (b) => b._id.toString() === book.id.toString()
+        );
+        if (detailedBook) {
+          book.details = detailedBook;
+        }
+      });
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Update stock for books in an order
 const reduceStock = async (books) => {
   const updatedBooks = []; // Array to hold books with updated stock
@@ -169,14 +217,17 @@ const reduceStock = async (books) => {
     // Check and update stock for each book
     for (const book of booksData) {
       const orderBook = books.find(
-        (orderBook) => orderBook.id === book._id
+        (orderBook) => orderBook.id.toString() === book._id.toString()
       );
-      if (!orderBook) throw new Error(`Book with ID ${book._id.toString()} not found`);
+      if (!orderBook)
+        throw new Error(`Book with ID ${book._id.toString()} not found`);
 
       const newStock = book.stock - orderBook.quantity;
 
       if (newStock < 0) {
-        throw new Error(`Not enough stock for book with ID ${book._id,toString()}`);
+        throw new Error(
+          `Not enough stock for book with ID ${book._id.toString()}`
+        );
       }
 
       // Update the stock in the book object
