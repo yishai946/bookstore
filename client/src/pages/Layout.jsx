@@ -13,6 +13,11 @@ const Layout = () => {
             </Link>
           </li>
           <li className="nav-item">
+            <Link to="/books" className="nav-link">
+              Books
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link to="/orders" className="nav-link">
               Orders
             </Link>

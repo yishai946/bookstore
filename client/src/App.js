@@ -4,19 +4,24 @@ import BooksPage from "./pages/BooksPage";
 import Layout from "./pages/Layout";
 import NoPage from "./pages/NoPage";
 import OrdersPage from "./pages/OrdersPage";
+import HomePage from "./pages/HomePage";
+import { AppProvider } from "./context";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<BooksPage />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="authors" element={<AuthorsPage />} />
-          <Route path="*" element={<NoPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AppProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="books" element={<BooksPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="authors" element={<AuthorsPage />} />
+            <Route path="*" element={<NoPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AppProvider>
   );
 }
 
