@@ -54,8 +54,19 @@ export const AppProvider = ({ children }) => {
       });
   };
 
+  const addBook = async (book) => {
+    axios
+      .post(`${apiUrl}/books/add`, book)
+      .then((response) => {
+        fetchBooks();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
-    <context.Provider value={{ books, orders, authors }}>
+    <context.Provider value={{ books, orders, authors, addBook }}>
       {children}
     </context.Provider>
   );

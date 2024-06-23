@@ -1,0 +1,148 @@
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.book-item {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.book-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.book-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333333;
+}
+
+.book-detail {
+  margin-bottom: 8px;
+  color: #666666;
+}
+
+.book-detail strong {
+  margin-right: 5px;
+}
+
+.book-detail:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .book-item {
+    padding: 15px;
+  }
+}
+
+.small-button {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.small-button:hover {
+  background-color: #0056b3;
+}
+
+
+/* add form */
+.add-book-form {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 50px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.add-book-form:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-book-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333333;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #666666;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* Ensures padding and border are included in width */
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Style specific to select dropdown */
+.form-group select {
+  appearance: none; /* Removes default appearance (arrow) */
+  background-repeat: no-repeat;
+  background-position-x: calc(100% - 10px);
+  background-position-y: center;
+  padding-right: 30px; /* Adjust based on arrow icon width */
+  cursor: pointer;
+}
+
+/* Hover and focus styles for select dropdown */
+.form-group select:hover,
+.form-group select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
