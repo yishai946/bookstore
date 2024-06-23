@@ -43,7 +43,7 @@ class OrdersCollection {
   // get order by id
   static async get(id) {
     const order = await this.instance().ordersCollection.findOne({
-      _id: new ObjectId(id),
+      _id: id,
     });
     return order;
   }
@@ -183,11 +183,6 @@ class OrdersCollection {
           $unwind: "$books",
         },
         {
-          $addFields: {
-            "books.id": { $toObjectId: "$books.id" },
-          },
-        },
-        {
           $lookup: {
             from: "books",
             localField: "books.id",
@@ -236,11 +231,6 @@ class OrdersCollection {
           $unwind: "$books",
         },
         {
-          $addFields: {
-            "books.id": { $toObjectId: "$books.id" },
-          },
-        },
-        {
           $lookup: {
             from: "books",
             localField: "books.id",
@@ -282,7 +272,7 @@ class OrdersCollection {
 
   // delete order by id
   static async delete(id) {
-    await this.instance().ordersCollection.deleteOne({ _id: new ObjectId(id) });
+    await this.instance().ordersCollection.deleteOne({ _id: id });
   }
 }
 

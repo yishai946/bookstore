@@ -48,9 +48,9 @@ class AuthorsCollection {
   }
   
   // get author by id
-  static async get(id) {
+static async get(id) {
     const author = await this.instance().authorsCollection.findOne({
-      _id: new ObjectId(id),
+      _id: id,
     });
     return author;
   }

@@ -23,7 +23,7 @@ const ordersFunctions = {
   // Get order by id
   get: async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = new ObjectId(req.params.id);
       const order = await OrdersCollection.get(id);
       res.status(200).json(order);
     } catch (error) {
@@ -116,10 +116,12 @@ const ordersFunctions = {
   // Add order to database
   add: async (req, res) => {
     try {
-      const order = req.body;
+      let order = req.body;
 
-      // Check if order data is valid
-      await checkOrderData(order);
+      if(order.books.length === 0) throw new Error("Order must contain at least one book");
+      if(!order.date) throw new Error("Order must contain a date");
+
+      order.books.map(book => new ObjectId(book.id));
 
       // Update stock for each book
       await reduceStock(order.books);
@@ -138,7 +140,7 @@ const ordersFunctions = {
   // Delete order by id
   delete: async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = new ObjectId(req.params.id);
       const order = await OrdersCollection.get(id);
       if (!order) throw new Error("Order not found");
 
@@ -167,14 +169,14 @@ const reduceStock = async (books) => {
     // Check and update stock for each book
     for (const book of booksData) {
       const orderBook = books.find(
-        (orderBook) => orderBook.id === book._id.toString()
+        (orderBook) => orderBook.id === book._id
       );
-      if (!orderBook) throw new Error(`Book with ID ${book._id} not found`);
+      if (!orderBook) throw new Error(`Book with ID ${book._id.toString()} not found`);
 
       const newStock = book.stock - orderBook.quantity;
 
       if (newStock < 0) {
-        throw new Error(`Not enough stock for book with ID ${book._id}`);
+        throw new Error(`Not enough stock for book with ID ${book._id,toString()}`);
       }
 
       // Update the stock in the book object
@@ -208,21 +210,6 @@ const revertStock = async (books) => {
     }
   } catch (error) {
     throw error;
-  }
-};
-
-// Check if order data is valid
-const checkOrderData = async (order) => {
-  if (order.books.length === 0 || !order.date) {
-    throw new Error("Invalid order data");
-  }
-
-  // Check if books exist and are in stock
-  const booksIds = order.books.map((book) => book.id);
-
-  // Check if one or more ids are empty
-  if (booksIds.includes("")) {
-    throw new Error("Book id cannot be empty");
   }
 };
 
