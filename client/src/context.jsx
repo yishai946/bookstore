@@ -55,18 +55,56 @@ export const AppProvider = ({ children }) => {
   };
 
   const addBook = async (book) => {
-    axios
-      .post(`${apiUrl}/books/add`, book)
-      .then((response) => {
-        fetchBooks();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      await axios.post(`${apiUrl}/books/add`, book);
+      fetchBooks();
+      alert("Book added successfully");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(`Error in adding book: ${error.response.data.error}`);
+      } else {
+        alert(`Error in adding book: ${error.message}`);
+      }
+      console.log(error);
+    }
+  };
+
+  // delete a book
+  const deleteBook = async (id) => {
+    try {
+      await axios.delete(`${apiUrl}/books/delete/${id}`);
+      fetchBooks();
+      alert("Book deleted successfully");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(`Error in deleting book: ${error.response.data.error}`);
+      } else {
+        alert(`Error in deleting book: ${error.message}`);
+      }
+      console.log(error);
+    }
+  };
+
+  // update a book
+  const updateBook = async (book, id) => {
+    try {
+      await axios.put(`${apiUrl}/books/update/${id}`, book);
+      fetchBooks();
+      alert("Book updated successfully");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(`Error in updating book: ${error.response.data.error}`);
+      } else {
+        alert(`Error in updating book: ${error.message}`);
+      }
+      console.log(error);
+    }
   };
 
   return (
-    <context.Provider value={{ books, orders, authors, addBook }}>
+    <context.Provider
+      value={{ books, orders, authors, addBook, deleteBook, updateBook }}
+    >
       {children}
     </context.Provider>
   );

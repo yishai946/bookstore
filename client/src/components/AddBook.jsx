@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context";
 
-const AddBook = () => {
-  const { authors, addBook } = useAppContext();
+const AddBook = ({ updateOpen, newBook, setNewBook, cancel }) => {
+  const { authors, addBook, updateBook } = useAppContext();
+  
   const initialBookState = {
     title: "",
     year: 0,
@@ -13,11 +14,8 @@ const AddBook = () => {
     stock: 0,
   };
 
-  const [newBook, setNewBook] = useState(initialBookState);
-
   const handleChangeNumber = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setNewBook({
       ...newBook,
       [name]: parseInt(value),
@@ -40,14 +38,23 @@ const AddBook = () => {
     });
   };
 
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    let { _id, ...book } = newBook;
+    book.author = book.author._id;
+    updateBook(book, _id);
+    cancel();
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     addBook(newBook);
     setNewBook(initialBookState);
+    cancel();
   };
 
   return (
-    <form className="add-book-form" onSubmit={handleSubmit}>
+    <form className="add-book-form" onSubmit={!updateOpen ? handleSubmit : handleUpdate}>
       <h2>Add New Book</h2>
       <div className="form-group">
         <label>Title:</label>
@@ -73,7 +80,7 @@ const AddBook = () => {
         <label>Author:</label>
         <select
           name="author"
-          value={newBook.author}
+          value={updateOpen ? newBook.author._id : newBook.author}
           onChange={handleChangeString}
           required
         >
@@ -125,7 +132,7 @@ const AddBook = () => {
           required
         />
       </div>
-      <button type="submit">Add Book</button>
+      <button type="submit">{!updateOpen ? "Add Book" : "Update Book"}</button>
     </form>
   );
 };

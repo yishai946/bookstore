@@ -1,10 +1,10 @@
 import React from "react";
 
-function List({ items, ItemComponent }) {
+function List({ items, ItemComponent, funcs }) {
   return (
     <div>
       {items.map((item, index) => (
-        <ItemComponent key={index} item={item} />
+        <ItemComponent key={index} item={item} funcs={funcs} />
       ))}
     </div>
   );
