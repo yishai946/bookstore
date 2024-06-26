@@ -17,6 +17,7 @@ export const AppProvider = ({ children }) => {
     fetchOrders();
   }, []);
 
+  // Books
   const fetchBooks = async (page = 1, limit = 10) => {
     try {
       const response = await axios.get(
@@ -25,48 +26,6 @@ export const AppProvider = ({ children }) => {
       setBooks(response.data);
     } catch (error) {
       console.error("Failed to fetch books", error);
-    }
-  };
-
-  const fetchGenres = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}/books/getGenres`);
-      setGenres(response.data);
-    } catch (error) {
-      console.error("Failed to fetch genres", error);
-    }
-  };
-
-  const fetchByGenre = async (genre, page, limit) => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/books/getByGenre/${genre}?page=${page}&limit=${limit}`
-      );
-      setBooks(response.data);
-    } catch (error) {
-      console.error("Failed to fetch books by genre", error);
-    }
-  };
-
-  const fetchAuthors = async (page = 1, limit = 10) => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/authors/getAll?page=${page}&limit=${limit}`
-      );
-      setAuthors(response.data);
-    } catch (error) {
-      console.error("Failed to fetch authors", error);
-    }
-  };
-
-  const fetchOrders = async (page = 1, limit = 10) => {
-    try {
-      const response = await axios.get(
-        `${apiUrl}/orders/getAll?page=${page}&limit=${limit}`
-      );
-      setOrders(response.data);
-    } catch (error) {
-      console.error("Failed to fetch orders", error);
     }
   };
 
@@ -103,20 +62,102 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Genres
+  const fetchGenres = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/books/getGenres`);
+      setGenres(response.data);
+    } catch (error) {
+      console.error("Failed to fetch genres", error);
+    }
+  };
+
+  const fetchByGenre = async (genre, page, limit) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/books/getByGenre/${genre}?page=${page}&limit=${limit}`
+      );
+      setBooks(response.data);
+    } catch (error) {
+      console.error("Failed to fetch books by genre", error);
+    }
+  };
+
+  // Authors
+  const fetchAuthors = async (page = 1, limit = 10) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/authors/getAll?page=${page}&limit=${limit}`
+      );
+      setAuthors(response.data);
+    } catch (error) {
+      console.error("Failed to fetch authors", error);
+    }
+  };
+
+  const addAuthor = async (author) => {
+    try {
+      await axios.post(`${apiUrl}/authors/add`, author);
+      fetchAuthors();
+      alert("Author added successfully");
+    } catch (error) {
+      console.error("Failed to add author", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  const deleteAuthor = async (id) => {
+    try {
+      await axios.delete(`${apiUrl}/authors/delete/${id}`);
+      fetchAuthors();
+      alert("Author deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete author", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  const updateAuthor = async (id, author) => {
+    try {
+      await axios.put(`${apiUrl}/authors/update/${id}`, author);
+      fetchAuthors();
+      alert("Author updated successfully");
+    } catch (error) {
+      console.error("Failed to update author", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  // Orders
+  const fetchOrders = async (page = 1, limit = 10) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders/getAll?page=${page}&limit=${limit}`
+      );
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    }
+  };
+
   return (
     <context.Provider
       value={{
         books,
-        orders,
         authors,
+        orders,
+        genres,
+        fetchBooks,
         addBook,
         deleteBook,
         updateBook,
-        fetchBooks,
-        fetchAuthors,
-        fetchOrders,
-        genres,
+        fetchGenres,
         fetchByGenre,
+        fetchAuthors,
+        addAuthor,
+        deleteAuthor,
+        updateAuthor,
+        fetchOrders,
       }}
     >
       {children}
