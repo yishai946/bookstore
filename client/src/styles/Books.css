@@ -166,3 +166,16 @@ button[type="submit"] {
 button[type="submit"]:hover {
   background-color: #0056b3;
 }
+
+
+/* filter */
+.genre-filter {
+  margin: 20px 0;
+}
+
+.genre-select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+}

@@ -105,7 +105,7 @@ const booksFunctions = {
   // delete book by id
   delete: async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = new ObjectId(req.params.id);
       await BooksCollection.delete(id);
       res.status(200).json({ deleted: id });
     } catch (error) {
@@ -116,8 +116,9 @@ const booksFunctions = {
   // update book by id
   update: async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = new ObjectId(req.params.id);
       const book = req.body;
+      book.author = new ObjectId(book.author);
       await BooksCollection.update(id, book);
       res.status(200).json({ updated: id });
     } catch (error) {

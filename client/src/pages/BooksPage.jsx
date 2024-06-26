@@ -1,8 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAppContext } from "../context";
 import List from "../components/List";
 import Book from "../components/Book";
 import AddBook from "../components/AddBook";
+import PagesNavBar from "../components/PagesNavBar";
+import GenreFilter from "../components/GenreFilter";
 
 function BooksPage() {
   const initialBookState = {
@@ -15,12 +17,21 @@ function BooksPage() {
     stock: 0,
   };
 
-  const { books } = useAppContext();
+  const { books, fetchBooks, fetchByGenre, genres } = useAppContext();
   const [addOpen, setAddOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [newBook, setNewBook] = useState(initialBookState);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [selectedGenre, setSelectedGenre] = useState("");
+
+  useEffect(() => {
+    if (selectedGenre) {
+      fetchByGenre(selectedGenre, currentPage, limit);
+    } else {
+      fetchBooks(currentPage, limit);
+    }
+  }, [currentPage, limit, selectedGenre]);
 
   const formRef = useRef(null);
 
@@ -29,7 +40,6 @@ function BooksPage() {
     setUpdateOpen(true);
     setNewBook(book);
 
-    // Scroll to the form
     if (formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -41,11 +51,16 @@ function BooksPage() {
     setNewBook(initialBookState);
   };
 
+  const handlePickGenre = (genre) => {
+    setSelectedGenre(genre);
+    setCurrentPage(1);
+  };
+
   return (
     <div>
       <div className="center-content">
         <button
-        ref={formRef}
+          ref={formRef}
           className="small-button"
           onClick={addOpen ? cancel : () => setAddOpen(!addOpen)}
         >
@@ -61,9 +76,19 @@ function BooksPage() {
           cancel={cancel}
         />
       )}
+      <GenreFilter
+        selectedGenre={selectedGenre}
+        onGenreChange={handlePickGenre}
+        genres={genres}
+      />
       {books.data && books.data.length > 0 && (
         <List items={books.data} ItemComponent={Book} funcs={[openUpdate]} />
       )}
+      <PagesNavBar
+        currentPage={currentPage}
+        totalPages={books.totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

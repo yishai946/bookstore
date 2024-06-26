@@ -3,55 +3,66 @@ import axios from "axios";
 
 const apiUrl = "http://localhost:3001/api";
 
-// Create a new context
 const context = createContext();
 
-// Create a provider component
 export const AppProvider = ({ children }) => {
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [genres, setGenres] = useState([]);
 
   useEffect(() => {
-    fetchBooks();
     fetchAuthors();
     fetchOrders();
   }, []);
 
-  //   fetch books with pagination
   const fetchBooks = async (page = 1, limit = 10) => {
-    axios
-      .get(`${apiUrl}/books/getAll?page=${page}&limit=${limit}`)
-      .then((response) => {
-        setBooks(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
+    try {
+      const response = await axios.get(
+        `${apiUrl}/books/getAll?page=${page}&limit=${limit}`
+      );
+      setBooks(response.data);
+      let genres = [];
+      response.data.data.forEach((book) => {
+        genres = [...new Set([...genres, ...book.genres])];
       });
+      setGenres(genres);
+    } catch (error) {
+      console.error("Failed to fetch books", error);
+    }
   };
 
-  //   fetch authors with pagination
+  const fetchByGenre = async (genre, page, limit) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/books/getByGenre/${genre}?page=${page}&limit=${limit}`
+      );
+      setBooks(response.data);
+    } catch (error) {
+      console.error("Failed to fetch books by genre", error);
+    }
+  };
+
   const fetchAuthors = async (page = 1, limit = 10) => {
-    axios
-      .get(`${apiUrl}/authors/getAll?page=${page}&limit=${limit}`)
-      .then((response) => {
-        setAuthors(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      const response = await axios.get(
+        `${apiUrl}/authors/getAll?page=${page}&limit=${limit}`
+      );
+      setAuthors(response.data);
+    } catch (error) {
+      console.error("Failed to fetch authors", error);
+    }
   };
 
-  //   fetch orders with pagination
   const fetchOrders = async (page = 1, limit = 10) => {
-    axios
-      .get(`${apiUrl}/orders/getAll?page=${page}&limit=${limit}`)
-      .then((response) => {
-        setOrders(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders/getAll?page=${page}&limit=${limit}`
+      );
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    }
   };
 
   const addBook = async (book) => {
@@ -60,50 +71,48 @@ export const AppProvider = ({ children }) => {
       fetchBooks();
       alert("Book added successfully");
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(`Error in adding book: ${error.response.data.error}`);
-      } else {
-        alert(`Error in adding book: ${error.message}`);
-      }
-      console.log(error);
+      console.error("Failed to add book", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
     }
   };
 
-  // delete a book
   const deleteBook = async (id) => {
     try {
       await axios.delete(`${apiUrl}/books/delete/${id}`);
       fetchBooks();
       alert("Book deleted successfully");
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(`Error in deleting book: ${error.response.data.error}`);
-      } else {
-        alert(`Error in deleting book: ${error.message}`);
-      }
-      console.log(error);
+      console.error("Failed to delete book", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
     }
   };
 
-  // update a book
   const updateBook = async (book, id) => {
     try {
       await axios.put(`${apiUrl}/books/update/${id}`, book);
       fetchBooks();
       alert("Book updated successfully");
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(`Error in updating book: ${error.response.data.error}`);
-      } else {
-        alert(`Error in updating book: ${error.message}`);
-      }
-      console.log(error);
+      console.error("Failed to update book", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
     }
   };
 
   return (
     <context.Provider
-      value={{ books, orders, authors, addBook, deleteBook, updateBook }}
+      value={{
+        books,
+        orders,
+        authors,
+        addBook,
+        deleteBook,
+        updateBook,
+        fetchBooks,
+        fetchAuthors,
+        fetchOrders,
+        genres,
+        fetchByGenre,
+      }}
     >
       {children}
     </context.Provider>
