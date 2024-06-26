@@ -171,6 +171,16 @@ class BooksCollection {
       { $set: book }
     );
   }
+
+  // get all books genres
+  static async getGenres() {
+    const booksCollection = this.instance().booksCollection;
+
+    // Retrieve distinct genres
+    const genres = await booksCollection.distinct("genres");
+
+    return genres;
+  }
 }
 
 export default BooksCollection;

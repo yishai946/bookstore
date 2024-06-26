@@ -179,3 +179,42 @@ button[type="submit"]:hover {
   margin-top: 10px;
   font-size: 14px;
 }
+
+
+/* limit */
+.limit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.limit-label {
+  font-weight: bold;
+  margin-right: 10px;
+  color: #666666;
+}
+
+.limit-select {
+  width: auto; /* Adjust width as needed */
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  background-color: #ffffff; /* Optional: to match your theme */
+}
+
+.limit-select:hover,
+.limit-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.limit-select {
+  appearance: none; /* Removes default appearance (arrow) */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px; /* Adjust based on arrow icon width */
+}

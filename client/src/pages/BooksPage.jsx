@@ -22,7 +22,7 @@ function BooksPage() {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [newBook, setNewBook] = useState(initialBookState);
   const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(5);
   const [selectedGenre, setSelectedGenre] = useState("");
 
   useEffect(() => {
@@ -53,6 +53,11 @@ function BooksPage() {
 
   const handlePickGenre = (genre) => {
     setSelectedGenre(genre);
+    setCurrentPage(1);
+  };
+
+  const handleLimitChange = (event) => {
+    setLimit(Number(event.target.value));
     setCurrentPage(1);
   };
 
@@ -89,6 +94,23 @@ function BooksPage() {
         totalPages={books.totalPages}
         onPageChange={setCurrentPage}
       />
+      <div className="limit-container">
+        <label htmlFor="limit" className="limit-label">
+          Books per page:
+        </label>
+        <select
+          id="limit"
+          value={limit}
+          onChange={handleLimitChange}
+          className="limit-select"
+        >
+          {[5, 10, 15, 20].map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

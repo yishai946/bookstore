@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
   const [genres, setGenres] = useState([]);
 
   useEffect(() => {
+    fetchGenres();
     fetchAuthors();
     fetchOrders();
   }, []);
@@ -22,13 +23,17 @@ export const AppProvider = ({ children }) => {
         `${apiUrl}/books/getAll?page=${page}&limit=${limit}`
       );
       setBooks(response.data);
-      let genres = [];
-      response.data.data.forEach((book) => {
-        genres = [...new Set([...genres, ...book.genres])];
-      });
-      setGenres(genres);
     } catch (error) {
       console.error("Failed to fetch books", error);
+    }
+  };
+
+  const fetchGenres = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/books/getGenres`);
+      setGenres(response.data);
+    } catch (error) {
+      console.error("Failed to fetch genres", error);
     }
   };
 

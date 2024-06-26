@@ -21,5 +21,8 @@ router.delete("/delete/:id", booksFunctions.delete);
 // update book by id
 router.put("/update/:id", booksFunctions.update);
 
+// get all genres
+router.get("/getGenres", booksFunctions.getGenres);
+
 
 export default router;
