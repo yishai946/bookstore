@@ -52,8 +52,6 @@ class BooksCollection {
       ])
       .toArray();
 
-      console.log(books);
-
     // Calculate total pages
     const totalPages = Math.ceil(total / limit);
 
@@ -85,6 +83,7 @@ class BooksCollection {
         {
           $unwind: {
             path: "$author",
+            preserveNullAndEmptyArrays: true,
           },
         },
       ])
@@ -120,6 +119,7 @@ class BooksCollection {
         {
           $unwind: {
             path: "$author",
+            preserveNullAndEmptyArrays: true,
           },
         },
       ])
@@ -152,6 +152,7 @@ class BooksCollection {
         {
           $unwind: {
             path: "$author",
+            preserveNullAndEmptyArrays: true,
           },
         },
       ])

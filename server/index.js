@@ -10,7 +10,7 @@ const run = async () => {
     await MongoDB.instance().connect();
     app.listen(port, () => console.log(`Listening on port: ${port}`));
   } catch (err) {
-    console.log("Failed to start: ", err);
+    console.error("Failed to start: ", err);
   }
 };
 

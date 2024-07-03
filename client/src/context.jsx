@@ -62,7 +62,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Genres
   const fetchGenres = async () => {
     try {
       const response = await axios.get(`${apiUrl}/books/getGenres`);

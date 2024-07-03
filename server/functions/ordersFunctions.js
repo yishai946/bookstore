@@ -99,7 +99,6 @@ const ordersFunctions = {
     try {
       const result = await OrdersCollection.getMostPopularBook();
       const book = await BooksCollection.get(result.bookId);
-      console.log(result)
       res.status(200).json({ book, quantity: result.totalQuantity });
     } catch (error) {
       res.status(500).json({ error: error.message });

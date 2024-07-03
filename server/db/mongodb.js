@@ -17,7 +17,7 @@ class MongoDB {
     if (!this.client) {
       try {
         this.client = await MongoClient.connect(this.url);
-        console.log("Connected to MongoDB");
+        console.info("Connected to MongoDB");
       } catch (error) {
         console.error("Failed to connect to MongoDB:", error);
         throw error;
@@ -29,7 +29,7 @@ class MongoDB {
   async disconnect() {
     if (this.client) {
       await this.client.close();
-      console.log("Disconnected from MongoDB");
+      console.info("Disconnected from MongoDB");
       this.client = null;
     }
   }
