@@ -34,7 +34,7 @@ const Book = ({ item, funcs }) => {
       </div>
 
       <p className="book-detail">
-        <strong>Author:</strong> {author.name}
+        <strong>Author:</strong> {author ? author.name : "Unknown"}
       </p>
       <p className="book-detail">
         <strong>Year:</strong> {year}

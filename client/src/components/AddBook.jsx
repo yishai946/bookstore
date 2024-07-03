@@ -22,6 +22,10 @@ const AddBook = ({ updateOpen, newBook, setNewBook, cancel }) => {
     });
   };
 
+  // React.useEffect(() => {
+  //   console.log(newBook);
+  // }, [newBook]);
+
   const handleChangeString = (e) => {
     const { name, value } = e.target;
     setNewBook({
@@ -41,7 +45,6 @@ const AddBook = ({ updateOpen, newBook, setNewBook, cancel }) => {
   const handleUpdate = (e) => {
     e.preventDefault();
     let { _id, ...book } = newBook;
-    book.author = book.author._id;
     updateBook(book, _id);
     cancel();
   }
@@ -80,7 +83,7 @@ const AddBook = ({ updateOpen, newBook, setNewBook, cancel }) => {
         <label>Author:</label>
         <select
           name="author"
-          value={updateOpen ? newBook.author._id : newBook.author}
+          value={updateOpen && newBook.author ? newBook.author._id : newBook.author}
           onChange={handleChangeString}
           required
         >

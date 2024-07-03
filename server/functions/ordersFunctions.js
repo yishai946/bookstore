@@ -179,16 +179,13 @@ const ordersFunctions = {
 // Function to populate book details including authors for orders
 const populateBookDetails = async (orders) => {
   try {
-    // Extract unique book ids from all orders
     const bookIds = orders.flatMap((order) =>
       order.books.map((book) => book.id)
     );
     const uniqueBookIds = [...new Set(bookIds)];
 
-    // Fetch books including authors based on unique book ids
     const books = await BooksCollection.getBooks(uniqueBookIds);
 
-    // Update each order with detailed book information
     orders.forEach((order) => {
       order.books.forEach((book) => {
         const detailedBook = books.find(
@@ -203,6 +200,7 @@ const populateBookDetails = async (orders) => {
     throw error;
   }
 };
+
 
 // Update stock for books in an order
 const reduceStock = async (books) => {

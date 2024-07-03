@@ -46,10 +46,13 @@ class BooksCollection {
         {
           $unwind: {
             path: "$author",
+            preserveNullAndEmptyArrays: true,
           },
         },
       ])
       .toArray();
+
+      console.log(books);
 
     // Calculate total pages
     const totalPages = Math.ceil(total / limit);
@@ -134,12 +137,10 @@ class BooksCollection {
 
   // get books by ids
   static async getBooks(ids) {
-    const objectIdArray = ids.map((id) => new ObjectId(id));
-
     // Retrieve books with author details
     const books = await this.instance()
       .booksCollection.aggregate([
-        { $match: { _id: { $in: objectIdArray } } },
+        { $match: { _id: { $in: ids } } },
         {
           $lookup: {
             from: "authors",
