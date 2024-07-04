@@ -162,6 +162,17 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const getOrdersBetweenDates = async (from, to, page = 1, limit = 10) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders/getBetweenDates?from=${from}&to=${to}&page=${page}&limit=${limit}`
+      );
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Failed to fetch orders between dates", error);
+    }
+  }
+
   return (
     <context.Provider
       value={{
@@ -182,6 +193,7 @@ export const AppProvider = ({ children }) => {
         fetchOrders,
         addOrder,
         deleteOrder,
+        getOrdersBetweenDates,
       }}
     >
       {children}
