@@ -10,12 +10,21 @@ export const AppProvider = ({ children }) => {
   const [authors, setAuthors] = useState([]);
   const [orders, setOrders] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [totalProfit, setTotalProfit] = useState(0);
+  const [mostPopularBook, setMostPopularBook] = useState({});
+  const [mostPopularAuthor, setMostPopularAuthor] = useState({});
+  const [mostPopularGenres, setMostPopularGenres] = useState([]);
+  const [highestProfitDay, setHighestProfitDay] = useState({});
 
   useEffect(() => {
     fetchBooks();
     fetchGenres();
     fetchAuthors();
     fetchOrders();
+    getMostPopularBook();
+    getMostPopularAuthor();
+    getMostPopularGenres();
+    getHighestProfitDay();
   }, []);
 
   // Books
@@ -144,12 +153,17 @@ export const AppProvider = ({ children }) => {
     try {
       await axios.post(`${apiUrl}/orders/add`, order);
       fetchOrders();
+      getMostPopularAuthor();
+      getMostPopularBook();
+      getMostPopularGenres();
+      getHighestProfitDay();
+      getTotalProfitBetweenDates();
       alert("Order added successfully");
     } catch (error) {
       console.error("Failed to add order", error);
       alert(`Error: ${error.response?.data?.error || error.message}`);
     }
-  }
+  };
 
   const deleteOrder = async (id) => {
     try {
@@ -171,7 +185,59 @@ export const AppProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to fetch orders between dates", error);
     }
+  };
+
+  // Home
+  const getTotalProfitBetweenDates = async (from, to) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders/profitBetweenDates?from=${from}&to=${to}`
+      );
+      setTotalProfit(response.data.totalProfit);
+    } catch (error) {
+      console.error("Failed to fetch total profit between dates", error);
+    }
+  };
+
+  const getMostPopularBook = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/orders/mostPopularBook`);
+      setMostPopularBook(response.data);
+    } catch (error) {
+      console.error("Failed to fetch most popular book", error);
+    }
+  };
+
+  const getMostPopularAuthor = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/orders/mostPopularAuthor`);
+      setMostPopularAuthor(response.data);
+    } catch (error) {
+      console.error("Failed to fetch most popular author", error);
+    }
   }
+
+  const getMostPopularGenres = async (from, to) => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/orders/mostPopularGenres?from=${from}&to=${to}`
+      );
+      console.log(response)
+      setMostPopularGenres(response.data);
+    } catch (error) {
+      console.error("Failed to fetch most popular genres", error);
+    }
+  }
+
+  const getHighestProfitDay = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/orders/highestProfitDay`);
+      setHighestProfitDay(response.data);
+    } catch (error) {
+      console.error("Failed to fetch highest profit day", error);
+    }
+  }
+  
 
   return (
     <context.Provider
@@ -180,6 +246,11 @@ export const AppProvider = ({ children }) => {
         authors,
         orders,
         genres,
+        totalProfit,
+        mostPopularBook,
+        mostPopularAuthor,
+        mostPopularGenres,
+        highestProfitDay,
         fetchBooks,
         addBook,
         deleteBook,
@@ -194,6 +265,8 @@ export const AppProvider = ({ children }) => {
         addOrder,
         deleteOrder,
         getOrdersBetweenDates,
+        getTotalProfitBetweenDates,
+        getMostPopularGenres,
       }}
     >
       {children}

@@ -4,10 +4,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { useAppContext } from "../context";
 
-const Book = ({ item, funcs }) => {
+const Book = ({ item, funcs, options=true }) => {
   const { title, year, author, genres, price, pages, stock } = item;
   const { deleteBook } = useAppContext();
-  const openUpdate = funcs[0];
+  const openUpdate = options && funcs[0];
 
   const handleDelete = (e) => {
     e.preventDefault();
@@ -23,14 +23,14 @@ const Book = ({ item, funcs }) => {
     <div className="book-item">
       <div className="book-header">
         <h2 className="book-title">{title}</h2>
-        <div>
+        {options && <div>
           <button onClick={handleDelete} className="icon-button">
             <FontAwesomeIcon icon={faTrash} />
           </button>
           <button onClick={handleUpdate} className="icon-button">
             <FontAwesomeIcon icon={faEdit} />
           </button>
-        </div>
+        </div>}
       </div>
 
       <p className="book-detail">

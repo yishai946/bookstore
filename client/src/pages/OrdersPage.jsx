@@ -4,7 +4,8 @@ import List from "../components/List";
 import Order from "../components/Order";
 import AddOrder from "../components/AddOrder";
 import PagesNavBar from "../components/PagesNavBar";
-import "../styles/Orders.css"; // Import your CSS file for styling
+import DateFilter from "../components/FilterDates"; 
+import "../styles/Orders.css";
 
 function OrdersPage() {
   const initialOrderState = {
@@ -19,8 +20,6 @@ function OrdersPage() {
   const [newOrder, setNewOrder] = useState(initialOrderState);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(5);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     fetchOrders(currentPage, limit);
@@ -43,16 +42,11 @@ function OrdersPage() {
     setCurrentPage(1);
   };
 
-  const handleFilterSubmit = (e) => {
-    e.preventDefault();
-    if (startDate && endDate) {
-      getOrdersBetweenDates(startDate, endDate, currentPage, limit);
-    }
+  const handleFilter = (startDate, endDate) => {
+    getOrdersBetweenDates(startDate, endDate, currentPage, limit);
   };
 
   const handleClearFilter = () => {
-    setStartDate("");
-    setEndDate("");
     fetchOrders(currentPage, limit); // Optionally fetch all orders again
   };
 
@@ -77,41 +71,8 @@ function OrdersPage() {
         />
       )}
 
-      {/* Date filter form */}
-      <form onSubmit={handleFilterSubmit} className="date-filter-form">
-        <div className="date-filter-group">
-          <label htmlFor="startDate">From:</label>
-          <input
-            type="date"
-            id="startDate"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            required
-            className="date-input"
-          />
-        </div>
-        <div className="date-filter-group">
-          <label htmlFor="endDate">To:</label>
-          <input
-            type="date"
-            id="endDate"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            required
-            className="date-input"
-          />
-        </div>
-        <button type="submit" className="clear-button">
-          Filter
-        </button>
-        <button
-          type="button"
-          className="clear-button"
-          onClick={handleClearFilter}
-        >
-          Clear
-        </button>
-      </form>
+      {/* Date filter component */}
+      <DateFilter onFilter={handleFilter} onClear={handleClearFilter} />
 
       {/* List of orders */}
       {orders.data && orders.data.length > 0 && (

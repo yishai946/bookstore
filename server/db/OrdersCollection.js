@@ -146,6 +146,19 @@ class OrdersCollection {
           $unwind: "$books",
         },
         {
+          $lookup: {
+            from: "books", // Replace with your actual collection name for books
+            localField: "books.id",
+            foreignField: "_id",
+            as: "bookDetails",
+          },
+        },
+        {
+          $match: {
+            bookDetails: { $ne: [] }, // Filter out orders where book doesn't exist
+          },
+        },
+        {
           $group: {
             _id: "$books.id",
             totalQuantity: {
