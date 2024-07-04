@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
   const [genres, setGenres] = useState([]);
 
   useEffect(() => {
+    fetchBooks();
     fetchGenres();
     fetchAuthors();
     fetchOrders();
@@ -139,6 +140,28 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const addOrder = async (order) => {
+    try {
+      await axios.post(`${apiUrl}/orders/add`, order);
+      fetchOrders();
+      alert("Order added successfully");
+    } catch (error) {
+      console.error("Failed to add order", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
+    }
+  }
+
+  const deleteOrder = async (id) => {
+    try {
+      await axios.delete(`${apiUrl}/orders/delete/${id}`);
+      fetchOrders();
+      alert("Order deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete order", error);
+      alert(`Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
   return (
     <context.Provider
       value={{
@@ -157,6 +180,8 @@ export const AppProvider = ({ children }) => {
         deleteAuthor,
         updateAuthor,
         fetchOrders,
+        addOrder,
+        deleteOrder,
       }}
     >
       {children}

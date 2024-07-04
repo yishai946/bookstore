@@ -1,0 +1,161 @@
+/* Orders.css */
+.order-item {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.order-title {
+  font-size: 1.5em;
+}
+
+.order-detail {
+  margin: 8px 0;
+}
+
+.order-books h3 {
+  margin-top: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+.order-books ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.order-books li {
+  margin-bottom: 16px;
+  padding: 8px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.book-header {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.book-title {
+  font-weight: bold;
+}
+
+.book-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.book-detail span {
+  flex: 1;
+  padding: 4px;
+  text-align: center;
+}
+
+.book-author {
+  flex: 2;
+  text-align: left;
+}
+
+.book-price,
+.book-quantity,
+.book-total {
+  flex: 1;
+  text-align: right;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.2em;
+}
+
+.icon-button:hover {
+  color: #007bff;
+}
+
+.add-order-form {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.add-order-form .form-group {
+  margin-bottom: 16px;
+}
+
+.add-order-form .form-group label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.add-order-form .form-group input,
+.add-order-form .form-group select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.add-order-form .order-books {
+  margin-top: 16px;
+}
+
+.add-order-form .order-books .form-group {
+  display: flex;
+  align-items: center;
+}
+
+.add-order-form .order-books .form-group select,
+.add-order-form .order-books .form-group input {
+  margin-right: 8px;
+}
+
+.add-order-form .order-books .form-group button {
+  padding: 8px 12px;
+}
+
+.add-order-form button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-order-form button[type="submit"] {
+  margin-top: 16px;
+}
+
+.limit-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.limit-label {
+  margin-right: 8px;
+}
+
+.limit-select {
+  padding: 8px;
+}

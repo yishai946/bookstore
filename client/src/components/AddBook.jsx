@@ -45,6 +45,7 @@ const AddBook = ({ updateOpen, newBook, setNewBook, cancel }) => {
   const handleUpdate = (e) => {
     e.preventDefault();
     let { _id, ...book } = newBook;
+    book.author = book.author._id;
     updateBook(book, _id);
     cancel();
   }

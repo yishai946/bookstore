@@ -25,6 +25,7 @@ class OrdersCollection {
     // Retrieve the paginated results
     const orders = await ordersCollection
       .find()
+      .sort({ date: -1 })
       .skip(skip)
       .limit(limit)
       .toArray();
